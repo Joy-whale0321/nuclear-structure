@@ -55,6 +55,10 @@ def generate_nucleon_positions(cluster_origins):
             cluster_number = i // 4
             new_position += cluster_origins[cluster_number]
 
+            if not positions:
+                positions.append(new_position)
+                break
+
             # 检查新生成的核子与已有核子之间的距离
             distances = [np.linalg.norm(new_position - pos) for pos in positions]
             
@@ -63,7 +67,6 @@ def generate_nucleon_positions(cluster_origins):
             
             if all(distance >= d_min for distance in distances):
                 positions.append(new_position)
-                # print(f"满足条件的距离: {distances}")
                 break
 
     return np.array(positions)
