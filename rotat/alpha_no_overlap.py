@@ -98,7 +98,7 @@ R_combined = R_z * R_y * R_x
 
 start_time = time.time()
 
-nevents = 1000000
+nevents = 100000
 epsilon_2_array = np.zeros(nevents)
 # 初始化一个空的 DataFrame 来存储所有run的数据
 all_runs_data = pd.DataFrame()
