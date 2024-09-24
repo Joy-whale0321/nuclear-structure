@@ -19,17 +19,18 @@ def get_cluster_origins(cluster_type):
         ])
     elif cluster_type == "tetrahedron":
         return np.array([
-            [3.5/(2*math.sqrt(2)), 3.5/(2*math.sqrt(2)), 0],    # cluster A
-            [3.5/(2*math.sqrt(2)), -3.5/(2*math.sqrt(2)), 0],   # cluster B
-            [-3.5/(2*math.sqrt(2)),-3.5/(2*math.sqrt(2)), 0],  # cluster C
-            [-3.5/(2*math.sqrt(2)),3.5/(2*math.sqrt(2)), 0]    # cluster D
+            [3.5/(2*math.sqrt(2)), 3.5/(2*math.sqrt(2)), 3.5/(2*math.sqrt(2))],    # cluster A
+            [-3.5/(2*math.sqrt(2)), 3.5/(2*math.sqrt(2)), 3.5/(2*math.sqrt(2))],   # cluster B
+            [3.5/(2*math.sqrt(2)),-3.5/(2*math.sqrt(2)), 3.5/(2*math.sqrt(2))],  # cluster C
+            [3.5/(2*math.sqrt(2)),3.5/(2*math.sqrt(2)), -3.5/(2*math.sqrt(2))]    # cluster D
         ])
     else:
         raise ValueError("Unknown cluster type. Please choose 'square' or 'tetrahedron'.")
 
 # 从高斯分布中生成样本
-def generate_nucleon_positions(num_nucleons, nucleon_radius):
+def generate_nucleon_positions(cluster_origins):
     num_nucleons = 16
+    nucleon_radius = 0.85
 
     positions = []
     d_min = 2 * nucleon_radius  # 两个核子之间的最小距离，取为两倍核子半径
@@ -52,18 +53,23 @@ def generate_nucleon_positions(num_nucleons, nucleon_radius):
             new_position = np.array([x, y, z])
 
             cluster_number = i // 4
-            print(cluster_number)
             new_position += cluster_origins[cluster_number]
 
             # 检查新生成的核子与已有核子之间的距离
-            if all(np.linalg.norm(new_position - pos) >= d_min for pos in positions):
+            distances = [np.linalg.norm(new_position - pos) for pos in positions]
+            
+            # if len(distances) > 0:
+            #     print(f"核子 {i} 与已有核子的距离: {distances}")
+            
+            if all(distance >= d_min for distance in distances):
                 positions.append(new_position)
+                # print(f"满足条件的距离: {distances}")
                 break
 
     return np.array(positions)
 
 
-root_file = ROOT.TFile("/mnt/e/git-repo/nuclear-structure/output/tetrahedron_100k.root", "RECREATE")
+root_file = ROOT.TFile("/mnt/e/git-repo/nuclear-structure/output/tetrahedron_wo_overlap_100k.root", "RECREATE")
 
 # 旋转 and 旋转矩阵
 alpha, beta, gamma = sp.symbols('alpha beta gamma')
@@ -89,24 +95,18 @@ R_combined = R_z * R_y * R_x
 
 start_time = time.time()
 
-nevents = 100000
+nevents = 1000000
 epsilon_2_array = np.zeros(nevents)
 # 初始化一个空的 DataFrame 来存储所有run的数据
 all_runs_data = pd.DataFrame()
 
 for events_i in range(nevents):
-
-    cluster_type = "square"  # 你可以改为 "tetrahedron"
+    cluster_type = "tetrahedron"  # 可选 "tetrahedron，square"
     cluster_origins = get_cluster_origins(cluster_type)
 
-    # 将32个核子分成两组，每组16个核子
-    nucleons_xyz = np.vstack([nucleon_x, nucleon_y, nucleon_z]).T
-    nucleons_group1 = nucleons_xyz[:16]  # 前16个核子
-    nucleons_group2 = nucleons_xyz[16:]  # 后16个核子
-
-    for nuclean_i in range(4):
-        nucleons_group1[nuclean_i*4:(nuclean_i+1)*4] += cluster_origins[nuclean_i]
-        nucleons_group2[nuclean_i*4:(nuclean_i+1)*4] += cluster_origins[nuclean_i]
+    # 2个O原子核 两组，每组16个核子
+    nucleons_group1 = generate_nucleon_positions(cluster_origins) # 前16个核子 
+    nucleons_group2 = generate_nucleon_positions(cluster_origins) # 后16个核子
 
     # 随机生成 0 到 2π 之间的 6 个数
     random_angles = np.random.uniform(0, 2 * np.pi, 6)

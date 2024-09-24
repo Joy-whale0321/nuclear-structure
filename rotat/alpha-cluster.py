@@ -66,10 +66,10 @@ for events_i in range(nevents):
 
     # alpha cluster center tetrahedron
     cluster_origins = np.array([
-        [3.5/(2*math.sqrt(2)), 3.5/(2*math.sqrt(2)), 0],    # cluster A
-        [3.5/(2*math.sqrt(2)), -3.5/(2*math.sqrt(2)), 0],   # cluster B
-        [-3.5/(2*math.sqrt(2)),-3.5/(2*math.sqrt(2)), 0],  # cluster C
-        [-3.5/(2*math.sqrt(2)),3.5/(2*math.sqrt(2)), 0]    # cluster D
+        [3.5/(2*math.sqrt(2)), 3.5/(2*math.sqrt(2)), 3.5/(2*math.sqrt(2))],    # cluster A
+        [-3.5/(2*math.sqrt(2)), 3.5/(2*math.sqrt(2)), 3.5/(2*math.sqrt(2))],   # cluster B
+        [3.5/(2*math.sqrt(2)),-3.5/(2*math.sqrt(2)), 3.5/(2*math.sqrt(2))],  # cluster C
+        [3.5/(2*math.sqrt(2)),3.5/(2*math.sqrt(2)), -3.5/(2*math.sqrt(2))]    # cluster D
     ])
 
     # 将32个核子分成两组，每组16个核子
