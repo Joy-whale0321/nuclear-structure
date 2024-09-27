@@ -117,7 +117,7 @@ epsilon_2_array = np.zeros(nevents)
 
 for events_i in range(nevents):    
     if Nuclear_system == "OO":
-        cluster_type = "tetrahedron"  # 可选 "tetrahedron，square"
+        cluster_type = "square"  # 可选 "tetrahedron，square"
         cluster_origins = get_cluster_origins(cluster_type)
 
         nucleons_group1 = generate_nucleon_positions(cluster_origins)  # 前16个核子 
