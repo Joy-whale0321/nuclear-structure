@@ -8,6 +8,9 @@ import pandas as pd
 import time
 import ROOT
 
+from scipy.spatial.transform import Rotation as R
+
+from readdocx import extract_xyz_from_docx
 
 def get_cluster_origins(cluster_type):
     if cluster_type == "square":
@@ -71,8 +74,8 @@ def generate_nucleon_positions(cluster_origins):
 
     return np.array(positions)
 
-
-root_file = ROOT.TFile("/mnt/e/git-repo/nuclear-structure/output/tetrahedron_wo_overlap_100k.root", "RECREATE")
+root_file = ROOT.TFile("/mnt/e/git-repo/nuclear-structure/output/test.root", "RECREATE")
+start_time = time.time()
 
 # 旋转 and 旋转矩阵
 alpha, beta, gamma = sp.symbols('alpha beta gamma')
@@ -96,20 +99,40 @@ R_z = sp.Matrix([
 ])
 R_combined = R_z * R_y * R_x
 
-start_time = time.time()
-
-nevents = 100000
-epsilon_2_array = np.zeros(nevents)
 # 初始化一个空的 DataFrame 来存储所有run的数据
 all_runs_data = pd.DataFrame()
 
-for events_i in range(nevents):
+nevents = 1000
+Nuclear_system = "OO"  # 可选 "OO"，"NeNe"
+epsilon_2_array = np.zeros(nevents)
+
+if Nuclear_system == "OO":
     cluster_type = "tetrahedron"  # 可选 "tetrahedron，square"
     cluster_origins = get_cluster_origins(cluster_type)
 
-    # 2个O原子核 两组，每组16个核子
-    nucleons_group1 = generate_nucleon_positions(cluster_origins) # 前16个核子 
-    nucleons_group2 = generate_nucleon_positions(cluster_origins) # 后16个核子
+    nucleons_group1 = generate_nucleon_positions(cluster_origins)  # 前16个核子 
+    nucleons_group2 = nucleons_group1                              # 后16个核子
+
+for events_i in range(nevents):    
+    # if Nuclear_system == "OO":
+    #     cluster_type = "tetrahedron"  # 可选 "tetrahedron，square"
+    #     cluster_origins = get_cluster_origins(cluster_type)
+
+    #     nucleons_group1 = generate_nucleon_positions(cluster_origins)  # 前16个核子 
+    #     nucleons_group2 = generate_nucleon_positions(cluster_origins)  # 后16个核子
+        
+    # elif Nuclear_system == "NeNe":
+    #     nucleons_group1 = extract_xyz_from_docx()
+    #     nucleons_group2 = extract_xyz_from_docx()
+
+    # else:
+    #     raise ValueError(f"未知的 cluster_type: {cluster_type}")
+
+    # print("Nucleons Group 1:")
+    # print(nucleons_group1)
+
+    nucleon_totalnumber = nucleons_group1.shape[0]
+    # print(f"Total number of nucleons in group 1: {nucleon_totalnumber}")
 
     # 随机生成 0 到 2π 之间的 6 个数
     random_angles = np.random.uniform(0, 2 * np.pi, 6)
@@ -120,9 +143,18 @@ for events_i in range(nevents):
     R1_evaluated = R_combined.subs({alpha: alpha1_val, beta: beta1_val, gamma: gamma1_val})
     R2_evaluated = R_combined.subs({alpha: alpha2_val, beta: beta2_val, gamma: gamma2_val})
 
+    # 随机生成一个四元数表示的旋转
+    r1 = R.random()
+    r2 = R.random()
+
+    rotation_matrix1 = r1.as_matrix()
+    rotation_matrix2 = r2.as_matrix()
+
     # 将 Sympy 矩阵转换为 NumPy 矩阵，方便数值计算; 对每组核子应用旋转
-    R1_np = np.array(R1_evaluated).astype(np.float64)
-    R2_np = np.array(R2_evaluated).astype(np.float64)
+    # R1_np = np.array(R1_evaluated).astype(np.float64)
+    # R2_np = np.array(R2_evaluated).astype(np.float64)
+    R1_np = np.array(rotation_matrix1).astype(np.float64)
+    R2_np = np.array(rotation_matrix2).astype(np.float64)
 
     nucleons_group1_rotated = np.dot(nucleons_group1, R1_np.T)
     nucleons_group2_rotated = np.dot(nucleons_group2, R2_np.T)
@@ -134,7 +166,7 @@ for events_i in range(nevents):
     num_group2 = nucleons_group2_rotated.shape[0]
 
     distances_squared = np.zeros((num_group1, num_group2))
-    status_vector = np.zeros(32)
+    status_vector = np.zeros(2*nucleon_totalnumber)
     R_nucleon = 0.85
     # 计算每对核子的距离平方，只使用x和y坐标（忽略z坐标）
     for group_i in range(num_group1):
@@ -145,17 +177,17 @@ for events_i in range(nevents):
 
             if distances_squared[group_i, group_j] < (2*R_nucleon)**2:
                 status_vector[group_i - 1]  = 1  # 标记 group1 中核子 i 的状态为 1
-                status_vector[group_j + 15] = 1  # 标记 group2 中核子 j 的状态为 1
+                status_vector[group_j - 1 + nucleon_totalnumber] = 1  # 标记 group2 中核子 j 的状态为 1
 
     # 提取参与碰撞核子信息; 计算二阶偏心度
     participant_x = []
     participant_y = []
     for cal_i in range(len(status_vector)):
         if status_vector[cal_i] == 1:
-            if cal_i < 16:
+            if cal_i < nucleon_totalnumber:
                 npart_x, npart_y = nucleons_group1[cal_i, 0], nucleons_group1[cal_i, 1]                
             else:
-                npart_x, npart_y = nucleons_group2[cal_i - 16, 0], nucleons_group2[cal_i - 16, 1]        
+                npart_x, npart_y = nucleons_group2[cal_i - nucleon_totalnumber, 0], nucleons_group2[cal_i - nucleon_totalnumber, 1]        
         participant_x.append(npart_x)
         participant_y.append(npart_y)
 
@@ -191,10 +223,10 @@ for events_i in range(nevents):
     # # 追加到所有 runs 的数据
     # all_runs_data = pd.concat([all_runs_data, df_combined], ignore_index=True)
 
-# all_runs_data.to_excel('/mnt/c/Users/12896/Desktop/togpt/nucleons_tetrahedron_runs.xlsx', index=False)
+# all_runs_data.to_excel('/mnt/c/Users/12896/Desktop/togpt/nucleons_NeNe_runs.xlsx', index=False)
 
-end_time = time.time()
-print(f"代码运行时间: {end_time - start_time} 秒")
+end_time3 = time.time()
+print(f"代码运行时间: {end_time3 - start_time} 秒")
 
 histogram = ROOT.TH1D("epsilon_2_hist", "Epsilon_2 Distribution", 300, -1, 2)
 
