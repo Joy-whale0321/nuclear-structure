@@ -7,7 +7,7 @@ def extract_xyz_from_docx(textpage=1):
     默认读取第一页（第1个段落群）。
     """
 
-    doc = Document('/mnt/c/Users/12896/Desktop/cluster/cluster-Ne20-EQMD.docx')
+    doc = Document('cluster-Ne20-EQMD.docx')
 
     xyz_coords = []
 
