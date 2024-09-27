@@ -3,7 +3,6 @@ import numpy as np
 from scipy.spatial.transform import Rotation as R
 
 def get_rotmatrix(rot_method=3):
-
     if rot_method == 1:
         # euler anguler
         alpha, beta, gamma = sp.symbols('alpha beta gamma')
