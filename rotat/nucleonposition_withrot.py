@@ -87,7 +87,8 @@ Nuclear_system = args.sys
 runnum = args.runnum
 print(f'The nuclear system is: {Nuclear_system}')
 
-root_filename = f"{Nuclear_system}_run{runnum}.root"
+output_dir = "/sphenix/user/jzhang1/nuclear-structure/output/method3/"
+root_filename = f"{output_dir}{Nuclear_system}_run{runnum}.root"
 print(f"Creating ROOT file: {root_filename}")
 
 root_file = ROOT.TFile(root_filename, "RECREATE")
