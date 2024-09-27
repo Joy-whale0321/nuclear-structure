@@ -174,8 +174,8 @@ for events_i in range(nevents):
                 npart_x, npart_y = nucleons_group1_rotated[cal_i, 0], nucleons_group1_rotated[cal_i, 1]                
             else:
                 npart_x, npart_y = nucleons_group2_rotated[cal_i - nucleon_totalnumber, 0], nucleons_group2_rotated[cal_i - nucleon_totalnumber, 1]        
-        participant_x.append(npart_x)
-        participant_y.append(npart_y)
+            participant_x.append(npart_x)
+            participant_y.append(npart_y)
 
     # 将参与者的坐标转换为 numpy 数组，方便后续计算  
     participant_x = np.array(participant_x)
