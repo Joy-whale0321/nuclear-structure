@@ -25,27 +25,10 @@ R_z = sp.Matrix([
     [0, 0, 1]
 ])
 
-
 # 生成6个随机角度(0到2π之间的弧度)，
 angles = [random.uniform(0, 2 * math.pi) for _ in range(6)]
 
 alpha1_val, beta1_val, gamma1_val = angles[:3]
 alpha2_val, beta2_val, gamma2_val = angles[3:]
 
-# 定义两个 square，使用 AB, BC, CD, DA 的顺序构造
-square1 = Polygon([A1_coords, B1_coords, C1_coords, D1_coords])  
-square2 = Polygon([A2_coords, B2_coords, C2_coords, D2_coords])
 
-# # 计算两个多边形的交集
-intersection = square1.intersection(square2)
-
-if not intersection.is_empty:
-    intersection_coords = list(intersection.exterior.coords)
-    print(f"交叠区域的边界顶点: {intersection_coords}")
-
-    # 获取交叠区域的质心
-    intersection_centroid = intersection.centroid
-    print(f"交叠区域的质心坐标: {intersection_centroid}")
-
-else:
-    print("没有交叠区域")
