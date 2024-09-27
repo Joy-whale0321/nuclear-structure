@@ -16,8 +16,8 @@ PYTHON_SCRIPT="/sphenix/user/jzhang1/nuclear-structure/rotat/nucleonposition_wit
 # 定义第一个参数
 Nuclear_system="NeNe"
 
-runnum = $2
+condornum = $2
 
 # 调用Python脚本并传递参数
-python $PYTHON_SCRIPT --sys $Nuclear_system --runnum $runnum
+python $PYTHON_SCRIPT --sys $Nuclear_system --runnum $condornum
 
