@@ -11,6 +11,8 @@ import ROOT
 from scipy.spatial.transform import Rotation as R
 
 from readdocx import extract_xyz_from_docx
+from rotatmatrix import get_rotmatrix
+
 
 def get_cluster_origins(cluster_type):
     if cluster_type == "square":
@@ -30,7 +32,6 @@ def get_cluster_origins(cluster_type):
     else:
         raise ValueError("Unknown cluster type. Please choose 'square' or 'tetrahedron'.")
 
-# 从高斯分布中生成样本
 def generate_nucleon_positions(cluster_origins):
     num_nucleons = 16
     nucleon_radius = 0.85
@@ -77,56 +78,27 @@ def generate_nucleon_positions(cluster_origins):
 root_file = ROOT.TFile("/mnt/e/git-repo/nuclear-structure/output/test.root", "RECREATE")
 start_time = time.time()
 
-# 旋转 and 旋转矩阵
-alpha, beta, gamma = sp.symbols('alpha beta gamma')
-
-R_x = sp.Matrix([
-    [1, 0, 0],
-    [0, sp.cos(alpha), -sp.sin(alpha)],
-    [0, sp.sin(alpha), sp.cos(alpha)]
-])
-
-R_y = sp.Matrix([
-    [sp.cos(beta), 0, sp.sin(beta)],
-    [0, 1, 0],
-    [-sp.sin(beta), 0, sp.cos(beta)]
-])
-
-R_z = sp.Matrix([
-    [sp.cos(gamma), -sp.sin(gamma), 0],
-    [sp.sin(gamma), sp.cos(gamma), 0],
-    [0, 0, 1]
-])
-R_combined = R_z * R_y * R_x
-
 # 初始化一个空的 DataFrame 来存储所有run的数据
 all_runs_data = pd.DataFrame()
 
 nevents = 1000
-Nuclear_system = "OO"  # 可选 "OO"，"NeNe"
+Nuclear_system = "NeNe"  # 可选 "OO"，"NeNe"
 epsilon_2_array = np.zeros(nevents)
 
-if Nuclear_system == "OO":
-    cluster_type = "tetrahedron"  # 可选 "tetrahedron，square"
-    cluster_origins = get_cluster_origins(cluster_type)
-
-    nucleons_group1 = generate_nucleon_positions(cluster_origins)  # 前16个核子 
-    nucleons_group2 = nucleons_group1                              # 后16个核子
-
 for events_i in range(nevents):    
-    # if Nuclear_system == "OO":
-    #     cluster_type = "tetrahedron"  # 可选 "tetrahedron，square"
-    #     cluster_origins = get_cluster_origins(cluster_type)
+    if Nuclear_system == "OO":
+        cluster_type = "tetrahedron"  # 可选 "tetrahedron，square"
+        cluster_origins = get_cluster_origins(cluster_type)
 
-    #     nucleons_group1 = generate_nucleon_positions(cluster_origins)  # 前16个核子 
-    #     nucleons_group2 = generate_nucleon_positions(cluster_origins)  # 后16个核子
+        nucleons_group1 = generate_nucleon_positions(cluster_origins)  # 前16个核子 
+        nucleons_group2 = generate_nucleon_positions(cluster_origins)  # 后16个核子
         
-    # elif Nuclear_system == "NeNe":
-    #     nucleons_group1 = extract_xyz_from_docx()
-    #     nucleons_group2 = extract_xyz_from_docx()
+    elif Nuclear_system == "NeNe":
+        nucleons_group1 = extract_xyz_from_docx()
+        nucleons_group2 = extract_xyz_from_docx()
 
-    # else:
-    #     raise ValueError(f"未知的 cluster_type: {cluster_type}")
+    else:
+        raise ValueError(f"未知的 cluster_type: {cluster_type}")
 
     # print("Nucleons Group 1:")
     # print(nucleons_group1)
@@ -134,25 +106,10 @@ for events_i in range(nevents):
     nucleon_totalnumber = nucleons_group1.shape[0]
     # print(f"Total number of nucleons in group 1: {nucleon_totalnumber}")
 
-    # 随机生成 0 到 2π 之间的 6 个数
-    random_angles = np.random.uniform(0, 2 * np.pi, 6)
-
-    alpha1_val, beta1_val, gamma1_val = random_angles[:3]
-    alpha2_val, beta2_val, gamma2_val = random_angles[3:]
-
-    R1_evaluated = R_combined.subs({alpha: alpha1_val, beta: beta1_val, gamma: gamma1_val})
-    R2_evaluated = R_combined.subs({alpha: alpha2_val, beta: beta2_val, gamma: gamma2_val})
-
-    # 随机生成一个四元数表示的旋转
-    r1 = R.random()
-    r2 = R.random()
-
-    rotation_matrix1 = r1.as_matrix()
-    rotation_matrix2 = r2.as_matrix()
-
+    rotation_matrix1 = get_rotmatrix()
+    rotation_matrix2 = get_rotmatrix()
+ 
     # 将 Sympy 矩阵转换为 NumPy 矩阵，方便数值计算; 对每组核子应用旋转
-    # R1_np = np.array(R1_evaluated).astype(np.float64)
-    # R2_np = np.array(R2_evaluated).astype(np.float64)
     R1_np = np.array(rotation_matrix1).astype(np.float64)
     R2_np = np.array(rotation_matrix2).astype(np.float64)
 
