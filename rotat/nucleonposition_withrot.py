@@ -124,8 +124,8 @@ for events_i in range(nevents):
         nucleons_group2 = generate_nucleon_positions(cluster_origins)  # 后16个核子
         
     elif Nuclear_system == "NeNe":
-        nucleons_group1 = extract_xyz_from_docx(2)
-        nucleons_group2 = extract_xyz_from_docx(2)
+        nucleons_group1 = extract_xyz_from_docx(4)
+        nucleons_group2 = extract_xyz_from_docx(4)
 
     else:
         raise ValueError(f"未知的 cluster_type: {cluster_type}")
