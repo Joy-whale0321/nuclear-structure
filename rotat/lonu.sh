@@ -14,7 +14,7 @@ echo "sPHENIX environment setup finished"
 PYTHON_SCRIPT="/sphenix/user/jzhang1/nuclear-structure/rotat/nucleonposition_withrot.py"
 
 # 定义第一个参数
-Nuclear_system="OO"
+Nuclear_system="NeNe"
 
 condornum=$2
 
