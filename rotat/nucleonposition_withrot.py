@@ -87,7 +87,7 @@ Nuclear_system = args.sys
 runnum = args.runnum
 print(f'The nuclear system is: {Nuclear_system}')
 
-output_dir = "/sphenix/user/jzhang1/nuclear-structure/output/method3/"
+output_dir = "/sphenix/user/jzhang1/nuclear-structure/output/method1/"
 root_filename = f"{output_dir}{Nuclear_system}_run{runnum}.root"
 print(f"Creating ROOT file: {root_filename}")
 
@@ -134,8 +134,8 @@ for events_i in range(nevents):
     # print(nucleons_group1)
 
     # 得到旋转矩阵，将 Sympy 矩阵转换为 NumPy 矩阵，方便数值计算; 对每组核子应用旋转
-    rotation_matrix1 = get_rotmatrix(2)
-    rotation_matrix2 = get_rotmatrix(2)
+    rotation_matrix1 = get_rotmatrix(1)
+    rotation_matrix2 = get_rotmatrix(1)
  
     R1_np = np.array(rotation_matrix1).astype(np.float64)
     R2_np = np.array(rotation_matrix2).astype(np.float64)
