@@ -87,7 +87,7 @@ Nuclear_system = args.sys
 runnum = args.runnum
 print(f'The nuclear system is: {Nuclear_system}')
 
-output_dir = "/sphenix/user/jzhang1/nuclear-structure/output/method2/"
+output_dir = "/sphenix/user/jzhang1/nuclear-structure/output/method3/"
 root_filename = f"{output_dir}{Nuclear_system}_run{runnum}.root"
 print(f"Creating ROOT file: {root_filename}")
 
@@ -124,8 +124,8 @@ for events_i in range(nevents):
         nucleons_group2 = generate_nucleon_positions(cluster_origins)  # 后16个核子
         
     elif Nuclear_system == "NeNe":
-        nucleons_group1 = extract_xyz_from_docx(2)
-        nucleons_group2 = extract_xyz_from_docx(2)
+        nucleons_group1 = extract_xyz_from_docx(3)
+        nucleons_group2 = extract_xyz_from_docx(3)
 
     else:
         raise ValueError(f"未知的 cluster_type: {cluster_type}")
