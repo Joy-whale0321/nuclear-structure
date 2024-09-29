@@ -92,7 +92,7 @@ print(f'The nuclear system is: {Nuclear_system}')
 EQMD_struct1 = args.struct1
 EQMD_struct2 = args.struct2
 
-output_dir = "/sphenix/user/jzhang1/nuclear-structure/output/method1/"
+output_dir = "/sphenix/user/jzhang1/nuclear-structure/output/method1/NeEQMD/"
 root_filename = f"{output_dir}{Nuclear_system}_EQMD{EQMD_struct1}{EQMD_struct2}_run{runnum}.root"
 print(f"Creating ROOT file: {root_filename}")
 
