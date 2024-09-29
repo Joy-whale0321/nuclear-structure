@@ -117,7 +117,7 @@ tree_rot.Branch("x2", x2, "x2/D")
 tree_rot.Branch("y2", y2, "y2/D")
 tree_rot.Branch("z2", z2, "z2/D")
 
-nevents = 1000
+nevents = 100
 epsilon_2_array = np.zeros(nevents)
 
 for events_i in range(nevents):    
