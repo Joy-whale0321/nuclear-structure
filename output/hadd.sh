@@ -14,9 +14,9 @@ echo "sPHENIX environment setup finished"
 for EQMD_struct1 in {1..5}; do
     # 内层循环从 EQMD_struct1 的值开始，避免重复组合
     for EQMD_struct2 in $(seq $EQMD_struct1 5); do
-        hadd /sphenix/user/jzhang1/nuclear-structure/output/method1/NeEQMD/NeNe_EQMD${EQMD_struct1}${EQMD_struct2}_10k.root /sphenix/user/jzhang1/nuclear-structure/output/method1/NeEQMD/NeNe_EQMD${EQMD_struct1}${EQMD_struct2}_run*root
+        hadd /sphenix/user/jzhang1/nuclear-structure/output/method2/NeEQMD/NeNe_EQMD${EQMD_struct1}${EQMD_struct2}_10k.root /sphenix/user/jzhang1/nuclear-structure/output/method2/NeEQMD/NeNe_EQMD${EQMD_struct1}${EQMD_struct2}_run*root
 
-        rm -rf /sphenix/user/jzhang1/nuclear-structure/output/method1/NeEQMD/NeNe_EQMD${EQMD_struct1}${EQMD_struct2}_run*root
+        # rm -rf /sphenix/user/jzhang1/nuclear-structure/output/method2/NeEQMD/NeNe_EQMD${EQMD_struct1}${EQMD_struct2}_run*root
     done
 done
 
