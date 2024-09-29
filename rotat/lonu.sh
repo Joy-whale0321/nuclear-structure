@@ -18,6 +18,13 @@ Nuclear_system="NeNe"
 
 condornum=$2
 
-# 调用Python脚本并传递参数
-python $PYTHON_SCRIPT --sys $Nuclear_system --runnum $condornum
+for EQMD_struct1 in {1..5}; do
+    # 内层循环从 EQMD_struct1 的值开始，避免重复组合
+    for EQMD_struct2 in $(seq $EQMD_struct1 5); do
+        python $PYTHON_SCRIPT --sys $Nuclear_system --runnum $condornum --struct1 EQMD_struct1 --struct2 EQMD_struct2
+    done
+done
+
+
+
 

@@ -81,6 +81,8 @@ start_time = time.time()
 parser = argparse.ArgumentParser(description='Process nuclear system.')
 parser.add_argument('--sys', type=str, default="OO", help='Input the nuclear system')
 parser.add_argument('--runnum', type=int, default=0, help='Input the condor number')
+parser.add_argument('--struct1', type=int, default=1, help='NeNe_EQMD_struct')
+parser.add_argument('--struct2', type=int, default=1, help='NeNe_EQMD_struct')
 args = parser.parse_args()
 
 Nuclear_system = args.sys
@@ -90,6 +92,9 @@ print(f'The nuclear system is: {Nuclear_system}')
 output_dir = "/sphenix/user/jzhang1/nuclear-structure/output/method2/"
 root_filename = f"{output_dir}{Nuclear_system}_run{runnum}.root"
 print(f"Creating ROOT file: {root_filename}")
+
+EQMD_struct1 = args.struct1
+EQMD_struct2 = args.struct2
 
 root_file = ROOT.TFile(root_filename, "RECREATE")
 tree_pos = ROOT.TTree("nucleon_position_origin", "nucleon position origin data")
@@ -124,8 +129,8 @@ for events_i in range(nevents):
         nucleons_group2 = generate_nucleon_positions(cluster_origins)  # 后16个核子
         
     elif Nuclear_system == "NeNe":
-        nucleons_group1 = extract_xyz_from_docx(2)
-        nucleons_group2 = extract_xyz_from_docx(2)
+        nucleons_group1 = extract_xyz_from_docx(EQMD_struct1)
+        nucleons_group2 = extract_xyz_from_docx(EQMD_struct2)
 
     else:
         raise ValueError(f"未知的 cluster_type: {cluster_type}")
