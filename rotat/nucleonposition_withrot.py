@@ -10,6 +10,7 @@ import pandas as pd
 import time
 import ROOT
 import argparse
+import os
 
 from scipy.spatial.transform import Rotation as R
 
@@ -95,6 +96,7 @@ EQMD_struct1 = args.struct1
 EQMD_struct2 = args.struct2
 
 output_dir = "/sphenix/user/jzhang1/nuclear-structure/output/method2/NeEQMD/"
+os.system(f"mkdir -p {output_dir}")
 root_filename = f"{output_dir}{Nuclear_system}_EQMD{EQMD_struct1}{EQMD_struct2}_run{runnum}.root"
 print(f"Creating ROOT file: {root_filename}")
 
