@@ -1,3 +1,7 @@
 *.root
 *.pyc
 *.pdf
+**/*.root
+**/*.pyc
+**/*.pdf
+
