@@ -14,75 +14,13 @@ import os
 
 from scipy.spatial.transform import Rotation as R
 
+import genOOstruct.py
 from readdocx import extract_xyz_from_docx
 from rotatmatrix import get_rotmatrix
 from calepsilon import calculate_Qn
 
-def get_cluster_origins(cluster_type):
-    if cluster_type == "square":
-        return np.array([
-            [1.5, 1.5, 0],    # cluster A
-            [1.5, -1.5, 0],   # cluster B
-            [-1.5, -1.5, 0],  # cluster C
-            [-1.5, 1.5, 0]    # cluster D
-        ])
-    elif cluster_type == "tetrahedron":
-        return np.array([
-            [3.5/(2*math.sqrt(2)), 3.5/(2*math.sqrt(2)), 3.5/(2*math.sqrt(2))],    # cluster A
-            [-3.5/(2*math.sqrt(2)), 3.5/(2*math.sqrt(2)), 3.5/(2*math.sqrt(2))],   # cluster B
-            [3.5/(2*math.sqrt(2)),-3.5/(2*math.sqrt(2)), 3.5/(2*math.sqrt(2))],  # cluster C
-            [3.5/(2*math.sqrt(2)),3.5/(2*math.sqrt(2)), -3.5/(2*math.sqrt(2))]    # cluster D
-        ])
-    else:
-        raise ValueError("Unknown cluster type. Please choose 'square' or 'tetrahedron'.")
-
-def generate_nucleon_positions(cluster_origins):
-    num_nucleons = 16
-    nucleon_radius = 0.85
-
-    positions = []
-    d_min = 2 * nucleon_radius  # 两个核子之间的最小距离，取为两倍核子半径
-
-    # 定义R高斯分布的参数
-    mu = 0  # 均值
-    sigma = 1.23  # 标准差
-    normalize_guassR = 1 / (sigma * np.sqrt(2 * np.pi))
-
-    for i in range(num_nucleons):
-        while True:
-            r = np.random.normal(loc=mu, scale=sigma)
-            theta = np.arccos(np.random.uniform(-1, 1))
-            phi = np.random.uniform(0, 2 * np.pi)
-
-            x = r * np.sin(theta) * np.cos(phi)
-            y = r * np.sin(theta) * np.sin(phi)
-            z = r * np.cos(theta)
-
-            new_position = np.array([x, y, z])
-
-            cluster_number = i // 4
-            new_position += cluster_origins[cluster_number]
-
-            if not positions:
-                positions.append(new_position)
-                break
-
-            # 检查新生成的核子与已有核子之间的距离
-            distances = [np.linalg.norm(new_position - pos) for pos in positions]
-            
-            # if len(distances) > 0:
-            #     print(f"核子 {i} 与已有核子的距离: {distances}")
-            
-            if all(distance >= d_min for distance in distances):
-                positions.append(new_position)
-                break
-
-    return np.array(positions)
-
-start_time = time.time()
-
 parser = argparse.ArgumentParser(description='Process nuclear system.')
-parser.add_argument('--sys', type=str, default="OO", help='Input the nuclear system')
+parser.add_argument('--sys', type=str, default="NeNe", help='Input the nuclear system')
 parser.add_argument('--runnum', type=int, default=0, help='Input the condor number')
 parser.add_argument('--struct1', type=int, default=1, help='NeNe_EQMD_struct')
 parser.add_argument('--struct2', type=int, default=1, help='NeNe_EQMD_struct')
@@ -95,8 +33,9 @@ print(f'The nuclear system is: {Nuclear_system}')
 EQMD_struct1 = args.struct1
 EQMD_struct2 = args.struct2
 
-output_dir = "/sphenix/user/jzhang1/nuclear-structure/output/method2/NeEQMD/"
-os.system(f"mkdir -p {output_dir}")
+# output_dir = "/sphenix/user/jzhang1/nuclear-structure/output/method2/NeEQMD/"
+# os.system(f"mkdir -p {output_dir}")
+output_dir = "/mnt/e/git-repo/nuclear-structure/rotat/"
 root_filename = f"{output_dir}{Nuclear_system}_EQMD{EQMD_struct1}{EQMD_struct2}_run{runnum}.root"
 print(f"Creating ROOT file: {root_filename}")
 
@@ -124,7 +63,7 @@ tree_rot.Branch("z2", z2, "z2/D")
 c2_2_array = []
 epsilon2_Q2_array = []
 
-nevents = 1000
+nevents = 1
 epsilon2_array = np.zeros(nevents)
 
 for events_i in range(nevents):    
@@ -142,9 +81,6 @@ for events_i in range(nevents):
     else:
         raise ValueError(f"未知的 cluster_type: {cluster_type}")
 
-    # print("Nucleons Group 1:")
-    # print(nucleons_group1)
-
     # 得到旋转矩阵，将 Sympy 矩阵转换为 NumPy 矩阵，方便数值计算; 对每组核子应用旋转
     rotation_matrix1 = get_rotmatrix(2)
     rotation_matrix2 = get_rotmatrix(2)
@@ -155,8 +91,6 @@ for events_i in range(nevents):
     # 旋转！
     nucleons_group1_rotated = np.dot(nucleons_group1, R1_np.T)
     nucleons_group2_rotated = np.dot(nucleons_group2, R2_np.T)
-    # nucleons_group1_rotated = nucleons_group1
-    # nucleons_group2_rotated = nucleons_group2
     
     # 获取 group1 和 group2 中的核子数量
     num_group1 = nucleons_group1_rotated.shape[0]
@@ -234,9 +168,6 @@ for events_i in range(nevents):
         y2[0] = nucleons_group2_rotated[i, 1]  
         z2[0] = nucleons_group2_rotated[i, 2]  
         tree_rot.Fill()
-
-end_time3 = time.time()
-print(f"代码运行时间: {end_time3 - start_time} 秒")
 
 # Q-cummulant to epsilon
 if len(c2_2_array) > 0:
