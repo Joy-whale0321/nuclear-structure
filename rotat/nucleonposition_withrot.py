@@ -1,3 +1,5 @@
+# main function
+
 import random
 import math
 import sympy as sp
@@ -13,7 +15,7 @@ from scipy.spatial.transform import Rotation as R
 
 from readdocx import extract_xyz_from_docx
 from rotatmatrix import get_rotmatrix
-
+from calepsilon import calculate_Qn
 
 def get_cluster_origins(cluster_type):
     if cluster_type == "square":
@@ -117,6 +119,9 @@ tree_rot.Branch("x2", x2, "x2/D")
 tree_rot.Branch("y2", y2, "y2/D")
 tree_rot.Branch("z2", z2, "z2/D")
 
+c2_2_array = []
+v2_Q2_array = []
+
 nevents = 100
 epsilon_2_array = np.zeros(nevents)
 
@@ -185,6 +190,9 @@ for events_i in range(nevents):
     # 将参与者的坐标转换为 numpy 数组，方便后续计算  
     participant_x = np.array(participant_x)
     participant_y = np.array(participant_y)
+    participant_phi = np.arctan2(participant_y, participant_x)
+
+    # 计算eccentricity
     if len(participant_x) > 0:    
         x2_avg = np.mean(participant_x ** 2)
         y2_avg = np.mean(participant_y ** 2)
@@ -195,6 +203,16 @@ for events_i in range(nevents):
 
     else:
         epsilon_2_array[events_i] = 1.1
+
+    # 调用calculate_Qn函数
+    Q2_event = calculate_Qn(participant_phi, 2)
+    M_event = len(participant_phi)
+
+    c2_2_event = (abs(Q2_event) ** 2 - M_event) / (M_event * (M_event-1))
+    v2_Q2_event = np.sqrt(c2_2_event)
+
+    c2_2_array.append(c2_2_event)
+    v2_Q2_array.append(v2_Q2_event)
 
     # 填充数据
     for i in range(nucleons_group1.shape[0]):  # 遍历每一行
@@ -218,11 +236,23 @@ for events_i in range(nevents):
 end_time3 = time.time()
 print(f"代码运行时间: {end_time3 - start_time} 秒")
 
-histogram = ROOT.TH1D("epsilon_2_hist", "Epsilon_2 Distribution", 300, -1, 2)
-for epsilon_2 in epsilon_2_array:
-    histogram.Fill(epsilon_2)
+# Q-cummulant to epsilon
+if len(c2_2_array) > 0:
+    c2_2_ensemble_average = np.mean(c2_2_array)
+    v2_Q2_ave = np.sqrt(c2_2_ensemble_average)
+else:
+    print("No valid events found for flow calculation.")
 
-histogram.Write()
+hist_epsilon2_xyz = ROOT.TH1D("epsilon2_xyz", "epsilon2_xyz", 300, -1, 2)
+for epsilon2_xyz_i in epsilon_2_array:
+    hist_epsilon2_xyz.Fill(epsilon2_xyz_i)
+
+hist_epsilon2_Q2 = ROOT.TH1D("epsilon2_Q2", "epsilon2_Q2", 300, -1, 2)
+for epsilon2_Q2_i in epsilon_2_array:
+    hist_epsilon2_Q2.Fill(epsilon2_Q2_i)
+
+hist_epsilon2_xyz.Write()
+hist_epsilon2_Q2.Write()
 tree_pos.Write()
 tree_rot.Write()
 
