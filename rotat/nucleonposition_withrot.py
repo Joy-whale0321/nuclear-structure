@@ -136,7 +136,6 @@ for events_i in range(nevents):
         epsilon_2 = np.sqrt((x2_avg - y2_avg) ** 2 + 4 * xy_avg ** 2) / (x2_avg + y2_avg)
 
         epsilon2_array[events_i] = epsilon_2
-
     else:
         epsilon2_array[events_i] = 1.1
 
