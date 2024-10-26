@@ -124,7 +124,7 @@ tree_rot.Branch("z2", z2, "z2/D")
 c2_2_array = []
 v2_Q2_array = []
 
-nevents = 100
+nevents = 1000
 epsilon_2_array = np.zeros(nevents)
 
 for events_i in range(nevents):    
