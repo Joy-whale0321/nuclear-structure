@@ -1,3 +1,4 @@
+*.json
 *.root
 *.pyc
 *.pdf
