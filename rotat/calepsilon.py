@@ -13,8 +13,8 @@ def calculate_two_particle_cumulant(phi_values, n):
 
     Qn = calculate_Qn(phi_values, n)
 
-    two_particle_corr = (abs(Qn)**2 - M) / (M * (M - 1))
-    return two_particle_corr
+    two_particle_cumulant = (abs(Qn)**2 - M) / (M * (M - 1))
+    return two_particle_cumulant
 
 def calculate_four_particle_cumulant(phi_values, n):
     M = len(phi_values)
@@ -27,10 +27,10 @@ def calculate_four_particle_cumulant(phi_values, n):
     term3 = 2 * np.real(Q2n * Qn.conjugate() * Qn.conjugate())
     term4 = 2 * ( (2 * (M - 2) * abs(Qn)**2) - M * (M - 3) )
 
-    four_particle_corr = (term1 + term2 - term3 - term4) / (M * (M - 1) * (M - 2) * (M - 3))
-    return four_particle_corr
+    four_particle_cumulant = (term1 + term2 - term3 - term4) / (M * (M - 1) * (M - 2) * (M - 3))
+    return four_particle_cumulant
 
-def calculate_two_particle_cumulant(phi_values, n):
+def calculate_two_particle_correlation(phi_values, n):
     two_cumulant = calculate_two_particle_cumulant(phi_values, n)
     
     two_correlation = two_cumulant

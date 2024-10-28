@@ -32,9 +32,9 @@ print(f'The nuclear system is: {Nuclear_system}')
 EQMD_struct1 = args.struct1
 EQMD_struct2 = args.struct2
 
-# output_dir = "/sphenix/user/jzhang1/nuclear-structure/output/method2/NeEQMD/"
-# os.system(f"mkdir -p {output_dir}")
-output_dir = "/mnt/e/git-repo/nuclear-structure/rotat/"
+output_dir = "/sphenix/user/jzhang1/nuclear-structure/output/method2/NeEQMD/"
+os.system(f"mkdir -p {output_dir}")
+# output_dir = "/mnt/e/git-repo/nuclear-structure/rotat/"
 root_filename = f"{output_dir}{Nuclear_system}_EQMD{EQMD_struct1}{EQMD_struct2}_run{runnum}.root"
 print(f"Creating ROOT file: {root_filename}")
 
@@ -68,10 +68,10 @@ epsilon2_array = np.zeros(nevents)
 for events_i in range(nevents):    
     if Nuclear_system == "OO":
         cluster_type = "square"  # 可选 "tetrahedron，square"
-        cluster_origins = get_cluster_origins(cluster_type)
+        cluster_origins = genOOstruct.get_cluster_origins(cluster_type)
 
-        nucleons_group1 = generate_nucleon_positions(cluster_origins)  # 前16个核子 
-        nucleons_group2 = generate_nucleon_positions(cluster_origins)  # 后16个核子
+        nucleons_group1 = genOOstruct.generate_nucleon_positions(cluster_origins)  # 前16个核子 
+        nucleons_group2 = genOOstruct.generate_nucleon_positions(cluster_origins)  # 后16个核子
         
     elif Nuclear_system == "NeNe":
         nucleons_group1 = extract_xyz_from_docx(EQMD_struct1)
@@ -139,14 +139,14 @@ for events_i in range(nevents):
         epsilon2_array[events_i] = 1.1
 
     # 调用calculate_Qn函数
-    two_cumulant_event= calculate_two_particle_cumulant(participant_phi, 2)
-    four_cumulant_event = calculate_four_particle_cumulant(participant_phi, 2)
+    two_cumulant_event = calepsilon.calculate_two_particle_cumulant(participant_phi, 2)
+    four_cumulant_event = calepsilon.calculate_four_particle_cumulant(participant_phi, 2)
 
     c2_2_event = two_cumulant_event
     c2_4_event = four_cumulant_event - 2 * ((two_cumulant_event)**2)
 
-    epsilon2_Q2_2_event = np.power(c2_2_event, 0.5)   if epsilon2_Q2_2_event > 0 else -0.9
-    epsilon2_Q2_4_event = np.power(-c2_4_event, 0.25) if epsilon2_Q2_4_event < 0 else -0.9
+    epsilon2_Q2_2_event = np.power(c2_2_event, 0.5)   if c2_2_event > 0 else -0.9
+    epsilon2_Q2_4_event = np.power(-c2_4_event, 0.25) if c2_4_event < 0 else -0.9
     epsilon2_Q2_2_array.append(epsilon2_Q2_2_event)
     epsilon2_Q2_4_array.append(epsilon2_Q2_4_event)
 
@@ -174,11 +174,11 @@ for epsilon2_xyz_i in epsilon2_array:
     hist_epsilon2_xyz.Fill(epsilon2_xyz_i)
 
 hist_epsilon2_Q2_2c = ROOT.TH1D("epsilon2_Q2_2c", "epsilon2_Q2_2c", 300, -1, 2)
-for epsilon2_Q2_2c_i in epsilon2_Q2_2_event:
+for epsilon2_Q2_2c_i in epsilon2_Q2_2_array:
     hist_epsilon2_Q2_2c.Fill(epsilon2_Q2_2c_i)
 
 hist_epsilon2_Q2_4c = ROOT.TH1D("epsilon2_Q2_4c", "epsilon2_Q2_4c", 300, -1, 2)
-for epsilon2_Q2_4c_i in epsilon2_Q2_4_event:
+for epsilon2_Q2_4c_i in epsilon2_Q2_4_array:
     hist_epsilon2_Q2_4c.Fill(epsilon2_Q2_4c_i)
 
 hist_epsilon2_xyz.Write()
