@@ -1,5 +1,4 @@
 # main function
-
 import random
 import math
 import sympy as sp
@@ -15,9 +14,9 @@ import os
 from scipy.spatial.transform import Rotation as R
 
 import genOOstruct.py
+import calculate_Qn
 from readdocx import extract_xyz_from_docx
 from rotatmatrix import get_rotmatrix
-from calepsilon import calculate_Qn
 
 parser = argparse.ArgumentParser(description='Process nuclear system.')
 parser.add_argument('--sys', type=str, default="NeNe", help='Input the nuclear system')
@@ -60,10 +59,10 @@ tree_rot.Branch("x2", x2, "x2/D")
 tree_rot.Branch("y2", y2, "y2/D")
 tree_rot.Branch("z2", z2, "z2/D")
 
-c2_2_array = []
-epsilon2_Q2_array = []
+epsilon2_Q2_2_array = []
+epsilon2_Q2_4_array = []
 
-nevents = 1
+nevents = 1000
 epsilon2_array = np.zeros(nevents)
 
 for events_i in range(nevents):    
@@ -140,14 +139,16 @@ for events_i in range(nevents):
         epsilon2_array[events_i] = 1.1
 
     # 调用calculate_Qn函数
-    Q2_event = calculate_Qn(participant_phi, 2)
-    M_event = len(participant_phi)
+    two_cumulant_event= calculate_two_particle_cumulant(participant_phi, 2)
+    four_cumulant_event = calculate_four_particle_cumulant(participant_phi, 2)
 
-    c2_2_event = (abs(Q2_event) ** 2 - M_event) / (M_event * (M_event-1))
-    epsilon2_Q2_event = np.sqrt(c2_2_event)
+    c2_2_event = two_cumulant_event
+    c2_4_event = four_cumulant_event - 2 * ((two_cumulant_event)**2)
 
-    c2_2_array.append(c2_2_event)
-    epsilon2_Q2_array.append(epsilon2_Q2_event)
+    epsilon2_Q2_2_event = np.power(c2_2_event, 0.5)   if epsilon2_Q2_2_event > 0 else -0.9
+    epsilon2_Q2_4_event = np.power(-c2_4_event, 0.25) if epsilon2_Q2_4_event < 0 else -0.9
+    epsilon2_Q2_2_array.append(epsilon2_Q2_2_event)
+    epsilon2_Q2_4_array.append(epsilon2_Q2_4_event)
 
     # 填充数据
     for i in range(nucleons_group1.shape[0]):  # 遍历每一行
@@ -168,23 +169,21 @@ for events_i in range(nevents):
         z2[0] = nucleons_group2_rotated[i, 2]  
         tree_rot.Fill()
 
-# Q-cummulant to epsilon
-if len(c2_2_array) > 0:
-    c2_2_ensemble_average = np.mean(c2_2_array)
-    epsilon2_Q2_ave = np.sqrt(c2_2_ensemble_average)
-else:
-    print("No valid events found for eccentricity calculation.")
-
 hist_epsilon2_xyz = ROOT.TH1D("epsilon2_xyz", "epsilon2_xyz", 300, -1, 2)
 for epsilon2_xyz_i in epsilon2_array:
     hist_epsilon2_xyz.Fill(epsilon2_xyz_i)
 
-hist_epsilon2_Q2 = ROOT.TH1D("epsilon2_Q2", "epsilon2_Q2", 300, -1, 2)
-for epsilon2_Q2_i in epsilon2_Q2_array:
-    hist_epsilon2_Q2.Fill(epsilon2_Q2_i)
+hist_epsilon2_Q2_2c = ROOT.TH1D("epsilon2_Q2_2c", "epsilon2_Q2_2c", 300, -1, 2)
+for epsilon2_Q2_2c_i in epsilon2_Q2_2_event:
+    hist_epsilon2_Q2_2c.Fill(epsilon2_Q2_2c_i)
+
+hist_epsilon2_Q2_4c = ROOT.TH1D("epsilon2_Q2_4c", "epsilon2_Q2_4c", 300, -1, 2)
+for epsilon2_Q2_4c_i in epsilon2_Q2_4_event:
+    hist_epsilon2_Q2_4c.Fill(epsilon2_Q2_4c_i)
 
 hist_epsilon2_xyz.Write()
-hist_epsilon2_Q2.Write()
+hist_epsilon2_Q2_2c.Write()
+hist_epsilon2_Q2_4c.Write()
 tree_pos.Write()
 tree_rot.Write()
 
