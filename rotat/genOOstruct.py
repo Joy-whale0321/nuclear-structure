@@ -60,4 +60,4 @@ def generate_nucleon_positions(cluster_origins):
                 positions.append(new_position)
                 break
 
-    return np.array(positions)i
+    return np.array(positions)
