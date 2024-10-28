@@ -13,7 +13,7 @@ import os
 
 from scipy.spatial.transform import Rotation as R
 
-import genOOstruct.py
+import genOOstruct
 import calculate_Qn
 from readdocx import extract_xyz_from_docx
 from rotatmatrix import get_rotmatrix
