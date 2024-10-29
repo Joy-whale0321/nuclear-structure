@@ -59,6 +59,9 @@ tree_rot.Branch("x2", x2, "x2/D")
 tree_rot.Branch("y2", y2, "y2/D")
 tree_rot.Branch("z2", z2, "z2/D")
 
+two_cumulant_array  = []
+four_cumulant_array = []
+
 epsilon2_Q2_2_array = []
 epsilon2_Q2_4_array = []
 
@@ -142,11 +145,14 @@ for events_i in range(nevents):
     two_cumulant_event = calepsilon.calculate_two_particle_cumulant(participant_phi, 2)
     four_cumulant_event = calepsilon.calculate_four_particle_cumulant(participant_phi, 2)
 
+    two_cumulant_array.append(two_cumulant_event)
+    four_cumulant_array.append(four_cumulant_event)
+
     c2_2_event = two_cumulant_event
     c2_4_event = four_cumulant_event - 2 * ((two_cumulant_event)**2)
 
-    epsilon2_Q2_2_event = np.power(c2_2_event, 0.5)   if c2_2_event > 0 else -0.9
-    epsilon2_Q2_4_event = np.power(-c2_4_event, 0.25) if c2_4_event < 0 else -0.9
+    epsilon2_Q2_2_event = np.power(c2_2_event, 0.5)   if c2_2_event >= 0 else -0.9
+    epsilon2_Q2_4_event = np.power(-c2_4_event, 0.25) if c2_4_event <= 0 else -0.9
     epsilon2_Q2_2_array.append(epsilon2_Q2_2_event)
     epsilon2_Q2_4_array.append(epsilon2_Q2_4_event)
 
@@ -181,10 +187,26 @@ hist_epsilon2_Q2_4c = ROOT.TH1D("epsilon2_Q2_4c", "epsilon2_Q2_4c", 300, -1, 2)
 for epsilon2_Q2_4c_i in epsilon2_Q2_4_array:
     hist_epsilon2_Q2_4c.Fill(epsilon2_Q2_4c_i)
 
+# calculate epsilon with array average
+epsilon2_xyz_ave = np.mean(epsilon2_array)
+
+c2_2_ave = np.mean(two_cumulant_array)
+c2_4_ave = np.mean(four_cumulant_array) - 2 * (np.mean(two_cumulant_array)**2)
+epsilon2_Q2_2_ave = np.power(c2_2_ave, 0.5)   if c2_2_ave >= 0 else -0.9
+epsilon2_Q2_4_ave = np.power(-c2_4_ave, 0.25) if c2_4_ave <= 0 else -0.9
+
+tree_epsilon = ROOT.TTree("tree_epsilon", "tree_epsilon")
+tree_epsilon.Branch("epsilon2_xyz_ave", epsilon2_xyz_ave, "epsilon2_xyz_ave/D")
+tree_epsilon.Branch("epsilon2_Q2_2_ave", epsilon2_Q2_2_ave, "epsilon2_Q2_2_ave/D")
+tree_epsilon.Branch("epsilon2_Q2_4_ave", epsilon2_Q2_4_ave, "epsilon2_Q2_4_ave/D")
+tree_epsilon.Fill()
+
+# Write to the root file
 hist_epsilon2_xyz.Write()
 hist_epsilon2_Q2_2c.Write()
 hist_epsilon2_Q2_4c.Write()
 tree_pos.Write()
 tree_rot.Write()
+tree_epsilon.Write()
 
 root_file.Close()
