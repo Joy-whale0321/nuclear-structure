@@ -59,8 +59,13 @@ tree_rot.Branch("x2", x2, "x2/D")
 tree_rot.Branch("y2", y2, "y2/D")
 tree_rot.Branch("z2", z2, "z2/D")
 
-two_cumulant_array  = []
-four_cumulant_array = []
+epsilon2_xyz_array  = np.zeros(1, dtype=float)
+two_cumulant_array  = np.zeros(1, dtype=float)
+four_cumulant_array = np.zeros(1, dtype=float)
+tree_epsilon = ROOT.TTree("tree_epsilon", "tree_epsilon")
+tree_epsilon.Branch("epsilon2_xyz_array", epsilon2_xyz_array, "epsilon2_xyz_array/D")
+tree_epsilon.Branch("two_cumulant_array", two_cumulant_array, "two_cumulant_array/D")
+tree_epsilon.Branch("four_cumulant_array", four_cumulant_array, "four_cumulant_array/D")
 
 epsilon2_Q2_2_array = []
 epsilon2_Q2_4_array = []
@@ -141,12 +146,15 @@ for events_i in range(nevents):
     else:
         epsilon2_array[events_i] = 1.1
 
+    epsilon2_xyz_array[0]  = epsilon2_array[events_i]
+    
     # 调用calculate_Qn函数
     two_cumulant_event = calepsilon.calculate_two_particle_cumulant(participant_phi, 2)
     four_cumulant_event = calepsilon.calculate_four_particle_cumulant(participant_phi, 2)
 
-    two_cumulant_array.append(two_cumulant_event)
-    four_cumulant_array.append(four_cumulant_event)
+    two_cumulant_array[0]  = two_cumulant_event 
+    four_cumulant_array[0] = four_cumulant_event
+    tree_epsilon.Fill()
 
     c2_2_event = two_cumulant_event
     c2_4_event = four_cumulant_event - 2 * ((two_cumulant_event)**2)
@@ -186,20 +194,6 @@ for epsilon2_Q2_2c_i in epsilon2_Q2_2_array:
 hist_epsilon2_Q2_4c = ROOT.TH1D("epsilon2_Q2_4c", "epsilon2_Q2_4c", 300, -1, 2)
 for epsilon2_Q2_4c_i in epsilon2_Q2_4_array:
     hist_epsilon2_Q2_4c.Fill(epsilon2_Q2_4c_i)
-
-# calculate epsilon with array average
-epsilon2_xyz_ave = np.mean(epsilon2_array)
-
-c2_2_ave = np.mean(two_cumulant_array)
-c2_4_ave = np.mean(four_cumulant_array) - 2 * (np.mean(two_cumulant_array)**2)
-epsilon2_Q2_2_ave = np.power(c2_2_ave, 0.5)   if c2_2_ave >= 0 else -0.9
-epsilon2_Q2_4_ave = np.power(-c2_4_ave, 0.25) if c2_4_ave <= 0 else -0.9
-
-tree_epsilon = ROOT.TTree("tree_epsilon", "tree_epsilon")
-tree_epsilon.Branch("epsilon2_xyz_ave", epsilon2_xyz_ave, "epsilon2_xyz_ave/D")
-tree_epsilon.Branch("epsilon2_Q2_2_ave", epsilon2_Q2_2_ave, "epsilon2_Q2_2_ave/D")
-tree_epsilon.Branch("epsilon2_Q2_4_ave", epsilon2_Q2_4_ave, "epsilon2_Q2_4_ave/D")
-tree_epsilon.Fill()
 
 # Write to the root file
 hist_epsilon2_xyz.Write()
