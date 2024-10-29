@@ -25,7 +25,7 @@ def calculate_four_particle_cumulant(phi_values, n):
     term1 = abs(Qn)**4
     term2 = abs(Q2n)**2
     term3 = 2 * np.real(Q2n * Qn.conjugate() * Qn.conjugate())
-    term4 = 2 * ( (2 * (M - 2) * abs(Qn)**2) - M * (M - 3) )
+    term4 = 2 * ( 2 * (M - 2) * (abs(Qn)**2) - M * (M - 3) )
 
     four_particle_cumulant = (term1 + term2 - term3 - term4) / (M * (M - 1) * (M - 2) * (M - 3))
     return four_particle_cumulant
