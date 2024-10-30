@@ -59,10 +59,13 @@ tree_rot.Branch("x2", x2, "x2/D")
 tree_rot.Branch("y2", y2, "y2/D")
 tree_rot.Branch("z2", z2, "z2/D")
 
-epsilon2_xyz_array = np.full(1, 3, dtype=float)
-two_cumulant_array = np.full(1, 3, dtype=float)
-four_cumulant_array =np.full(1, 3, dtype=float)
+epsilon2_xyz_array = np.full(1, -0.9, dtype=float)
+two_cumulant_array = np.full(1, -0.9, dtype=float)
+four_cumulant_array =np.full(1, -0.9, dtype=float)
+M_array =np.full(1, -0.9, dtype=float)
+
 tree_epsilon = ROOT.TTree("tree_epsilon", "tree_epsilon")
+tree_epsilon.Branch("M_array", M_array, "M_array/D")
 tree_epsilon.Branch("epsilon2_xyz_array", epsilon2_xyz_array, "epsilon2_xyz_array/D")
 tree_epsilon.Branch("two_cumulant_array", two_cumulant_array, "two_cumulant_array/D")
 tree_epsilon.Branch("four_cumulant_array", four_cumulant_array, "four_cumulant_array/D")
@@ -149,6 +152,9 @@ for events_i in range(nevents):
     epsilon2_xyz_array[0]  = epsilon2_array[events_i]
     
     # 调用calculate_Qn函数
+    M_event = len(participant_phi)
+    M_array[0] = M_event
+
     two_cumulant_event = calepsilon.calculate_two_particle_cumulant(participant_phi, 2)
     four_cumulant_event = calepsilon.calculate_four_particle_cumulant(participant_phi, 2)
 
