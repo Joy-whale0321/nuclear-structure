@@ -6,6 +6,7 @@ def calculate_Qn(phi_values, n):
     Qn_imag = sum(np.sin(n * phi) for phi in phi_values)
     
     Qn = Qn_real + 1j * Qn_imag
+    # print(f"Qn_real: {Qn_real}, Qn_imag: {Qn_imag}, Qn: {Qn}")
     return Qn
 
 def calculate_two_particle_cumulant(phi_values, n):
@@ -14,6 +15,7 @@ def calculate_two_particle_cumulant(phi_values, n):
     Qn = calculate_Qn(phi_values, n)
 
     two_particle_cumulant = (abs(Qn)**2 - M) / (M * (M - 1))
+    # print(f"M: {M}, |Qn|^2: {abs(Qn)**2}, Two-particle cumulant: {two_particle_cumulant}")
     return two_particle_cumulant
 
 def calculate_four_particle_cumulant(phi_values, n):

@@ -18,6 +18,8 @@ import calepsilon
 from readdocx import extract_xyz_from_docx
 from rotatmatrix import get_rotmatrix
 
+from position_display import plot_nucleons
+
 parser = argparse.ArgumentParser(description='Process nuclear system.')
 parser.add_argument('--sys', type=str, default="NeNe", help='Input the nuclear system')
 parser.add_argument('--runnum', type=int, default=0, help='Input the condor number')
@@ -73,7 +75,7 @@ tree_epsilon.Branch("four_cumulant_array", four_cumulant_array, "four_cumulant_a
 epsilon2_Q2_2_array = []
 epsilon2_Q2_4_array = []
 
-nevents = 1000
+nevents = 100
 epsilon2_array = np.zeros(nevents)
 
 for events_i in range(nevents):    
@@ -101,7 +103,10 @@ for events_i in range(nevents):
     # 旋转！
     nucleons_group1_rotated = np.dot(nucleons_group1, R1_np.T)
     nucleons_group2_rotated = np.dot(nucleons_group2, R2_np.T)
-    
+    nucleons_group2_rotated[:, 0] += 1  # x 坐标加 1
+    nucleons_group2_rotated[:, 1] += 1  # y 坐标加 1
+    nucleons_group2_rotated[:, 2] += 0.5  # z 坐标加 0.5
+
     # 获取 group1 和 group2 中的核子数量
     num_group1 = nucleons_group1_rotated.shape[0]
     num_group2 = nucleons_group2_rotated.shape[0]
@@ -118,8 +123,11 @@ for events_i in range(nevents):
             distances_squared[group_i, group_j] = delta_x**2 + delta_y**2
 
             if distances_squared[group_i, group_j] < (2*R_nucleon)**2:
-                status_vector[group_i - 1]  = 1  # 标记 group1 中核子 i 的状态为 1
-                status_vector[group_j - 1 + nucleon_totalnumber] = 1  # 标记 group2 中核子 j 的状态为 1
+                status_vector[group_i]  = 1  # 标记 group1 中核子 i 的状态为 1
+                status_vector[group_j + nucleon_totalnumber] = 1  # 标记 group2 中核子 j 的状态为 1
+
+                distance = np.sqrt(distances_squared[group_i, group_j])
+                # print(f"Distance between nucleons {group_i} (group1) and {group_j} (group2): {distance}")
 
     # 提取参与碰撞核子信息; 计算二阶偏心度
     participant_x = []
@@ -188,6 +196,35 @@ for events_i in range(nevents):
         y2[0] = nucleons_group2_rotated[i, 1]  
         z2[0] = nucleons_group2_rotated[i, 2]  
         tree_rot.Fill()
+
+    # event display
+    x_nucleon_pos1 = [coord[0] for coord in nucleons_group1_rotated]
+    y_nucleon_pos1 = [coord[1] for coord in nucleons_group1_rotated]
+    x_nucleon_pos2 = [coord[0] for coord in nucleons_group2_rotated]
+    y_nucleon_pos2 = [coord[1] for coord in nucleons_group2_rotated]
+    # print("Shape of x_nucleon_pos1:", len(x_nucleon_pos1))
+    # print("Shape of y_nucleon_pos1:", len(y_nucleon_pos1))
+    # print("Shape of x_nucleon_pos2:", len(x_nucleon_pos2))
+    # print("Shape of y_nucleon_pos2:", len(y_nucleon_pos2))
+    # print("nucleons_group1_origin:", nucleons_group1)
+    # print("nucleons_group2_origin:", nucleons_group2)
+    # print("nucleons_group1_rotated:", nucleons_group1_rotated)
+    # print("nucleons_group2_rotated:", nucleons_group2_rotated)
+    # print("participant_x  :", participant_x)
+    # print("participant_y  :", participant_y)
+    # print("participant_phi:", participant_phi)
+
+    # plot_nucleons(
+    #     x_coords1=x_nucleon_pos1,
+    #     y_coords1=y_nucleon_pos1,
+    #     x_coords2=x_nucleon_pos2,
+    #     y_coords2=y_nucleon_pos2,
+    #     x_coords_part=participant_x,
+    #     y_coords_part=participant_y,
+    #     radius_nucleon=0.85,
+    #     radius_part=0.80,
+    #     output_filename="nucleon_plot.pdf"
+    # )
 
 hist_epsilon2_xyz = ROOT.TH1D("epsilon2_xyz", "epsilon2_xyz", 300, -1, 2)
 for epsilon2_xyz_i in epsilon2_array:
