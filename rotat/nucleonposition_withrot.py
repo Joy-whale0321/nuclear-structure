@@ -213,6 +213,8 @@ for events_i in range(nevents):
     # print("participant_x  :", participant_x)
     # print("participant_y  :", participant_y)
     # print("participant_phi:", participant_phi)
+    print("status_vector is: ", status_vector)
+    
 
     # plot_nucleons(
     #     x_coords1=x_nucleon_pos1,
