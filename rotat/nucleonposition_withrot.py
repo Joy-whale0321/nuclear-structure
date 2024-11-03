@@ -80,7 +80,7 @@ tree_epsilon.Branch("four_cumulant_array", four_cumulant_array, "four_cumulant_a
 epsilon2_Q2_2_array = []
 epsilon2_Q2_4_array = []
 
-nevents = 100
+nevents = 1000
 epsilon2_array = np.zeros(nevents)
 
 for events_i in range(nevents):    
