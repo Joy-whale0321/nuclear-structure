@@ -31,13 +31,14 @@ Nuclear_system = args.sys
 runnum = args.runnum
 print(f'The nuclear system is: {Nuclear_system}')
 
-EQMD_struct1 = args.struct1
-EQMD_struct2 = args.struct2
+# EQMD_struct1 = args.struct1
+# EQMD_struct2 = args.struct2
 
 output_dir = "/sphenix/user/jzhang1/nuclear-structure/output/method2/NeEQMD/"
 os.system(f"mkdir -p {output_dir}")
 # output_dir = "/mnt/e/git-repo/nuclear-structure/rotat/"
-root_filename = f"{output_dir}{Nuclear_system}_EQMD{EQMD_struct1}{EQMD_struct2}_run{runnum}.root"
+# root_filename = f"{output_dir}{Nuclear_system}_EQMD{EQMD_struct1}{EQMD_struct2}_run{runnum}.root"
+root_filename = f"{output_dir}{Nuclear_system}_EQMD_run{runnum}.root"
 print(f"Creating ROOT file: {root_filename}")
 
 root_file = ROOT.TFile(root_filename, "RECREATE")
@@ -65,8 +66,12 @@ epsilon2_xyz_array = np.full(1, -0.9, dtype=float)
 two_cumulant_array = np.full(1, -0.9, dtype=float)
 four_cumulant_array =np.full(1, -0.9, dtype=float)
 M_array =np.full(1, -0.9, dtype=float)
+struct1 =np.full(1, -0.9, dtype=float)
+struct2 =np.full(1, -0.9, dtype=float)
 
 tree_epsilon = ROOT.TTree("tree_epsilon", "tree_epsilon")
+tree_epsilon.Branch("struct1", struct1, "struct1/D")
+tree_epsilon.Branch("struct2", struct2, "struct2/D")
 tree_epsilon.Branch("M_array", M_array, "M_array/D")
 tree_epsilon.Branch("epsilon2_xyz_array", epsilon2_xyz_array, "epsilon2_xyz_array/D")
 tree_epsilon.Branch("two_cumulant_array", two_cumulant_array, "two_cumulant_array/D")
@@ -87,9 +92,16 @@ for events_i in range(nevents):
         nucleons_group2 = genOOstruct.generate_nucleon_positions(cluster_origins)  # 后16个核子
         
     elif Nuclear_system == "NeNe":
+        EQMD_values = [1, 2, 3, 4, 5]
+        probabilities = [0.56353591, 0.2854512, 0.00368324, 0.13075506, 0.01657459]
+        EQMD_struct1 = random.choices(EQMD_values, probabilities)[0]
+        EQMD_struct2 = random.choices(EQMD_values, probabilities)[0]
+        struct1[0] = EQMD_struct1
+        struct2[0] = EQMD_struct2
+
         nucleons_group1 = extract_xyz_from_docx(EQMD_struct1)
         nucleons_group2 = extract_xyz_from_docx(EQMD_struct2)
-
+        
     else:
         raise ValueError(f"未知的 cluster_type: {cluster_type}")
 
@@ -103,9 +115,9 @@ for events_i in range(nevents):
     # 旋转！
     nucleons_group1_rotated = np.dot(nucleons_group1, R1_np.T)
     nucleons_group2_rotated = np.dot(nucleons_group2, R2_np.T)
-    nucleons_group2_rotated[:, 0] += 1  # x 坐标加 1
-    nucleons_group2_rotated[:, 1] += 1  # y 坐标加 1
-    nucleons_group2_rotated[:, 2] += 0.5  # z 坐标加 0.5
+    # nucleons_group2_rotated[:, 0] += 1  # x 坐标加 1
+    # nucleons_group2_rotated[:, 1] += 1  # y 坐标加 1
+    # nucleons_group2_rotated[:, 2] += 0.5  # z 坐标加 0.5
 
     # 获取 group1 和 group2 中的核子数量
     num_group1 = nucleons_group1_rotated.shape[0]
@@ -216,17 +228,17 @@ for events_i in range(nevents):
     print("status_vector is: ", status_vector)
     
 
-    # plot_nucleons(
-    #     x_coords1=x_nucleon_pos1,
-    #     y_coords1=y_nucleon_pos1,
-    #     x_coords2=x_nucleon_pos2,
-    #     y_coords2=y_nucleon_pos2,
-    #     x_coords_part=participant_x,
-    #     y_coords_part=participant_y,
-    #     radius_nucleon=0.85,
-    #     radius_part=0.80,
-    #     output_filename="nucleon_plot.pdf"
-    # )
+    plot_nucleons(
+        x_coords1=x_nucleon_pos1,
+        y_coords1=y_nucleon_pos1,
+        x_coords2=x_nucleon_pos2,
+        y_coords2=y_nucleon_pos2,
+        x_coords_part=participant_x,
+        y_coords_part=participant_y,
+        radius_nucleon=0.85,
+        radius_part=0.80,
+        output_filename="nucleon_plot.pdf"
+    )
 
 hist_epsilon2_xyz = ROOT.TH1D("epsilon2_xyz", "epsilon2_xyz", 300, -1, 2)
 for epsilon2_xyz_i in epsilon2_array:
