@@ -228,17 +228,17 @@ for events_i in range(nevents):
     print("status_vector is: ", status_vector)
     
 
-    plot_nucleons(
-        x_coords1=x_nucleon_pos1,
-        y_coords1=y_nucleon_pos1,
-        x_coords2=x_nucleon_pos2,
-        y_coords2=y_nucleon_pos2,
-        x_coords_part=participant_x,
-        y_coords_part=participant_y,
-        radius_nucleon=0.85,
-        radius_part=0.80,
-        output_filename="nucleon_plot.pdf"
-    )
+    # plot_nucleons(
+    #     x_coords1=x_nucleon_pos1,
+    #     y_coords1=y_nucleon_pos1,
+    #     x_coords2=x_nucleon_pos2,
+    #     y_coords2=y_nucleon_pos2,
+    #     x_coords_part=participant_x,
+    #     y_coords_part=participant_y,
+    #     radius_nucleon=0.85,
+    #     radius_part=0.80,
+    #     output_filename="nucleon_plot.pdf"
+    # )
 
 hist_epsilon2_xyz = ROOT.TH1D("epsilon2_xyz", "epsilon2_xyz", 300, -1, 2)
 for epsilon2_xyz_i in epsilon2_array:
