@@ -115,9 +115,14 @@ for events_i in range(nevents):
     # 旋转！
     nucleons_group1_rotated = np.dot(nucleons_group1, R1_np.T)
     nucleons_group2_rotated = np.dot(nucleons_group2, R2_np.T)
-    # nucleons_group2_rotated[:, 0] += 1  # x 坐标加 1
-    # nucleons_group2_rotated[:, 1] += 1  # y 坐标加 1
-    # nucleons_group2_rotated[:, 2] += 0.5  # z 坐标加 0.5
+    # 生成一个随机角度 theta
+    impact_para = 0.5
+    cm_theta = random.uniform(0, 2 * math.pi)
+    cm_x = math.cos(cm_theta) * math.sqrt(impact_para)
+    cm_y = math.sin(cm_theta) * math.sqrt(impact_para)
+    nucleons_group2_rotated[:, 0] += cm_x  # x 坐标加 cm_x
+    nucleons_group2_rotated[:, 1] += cm_y  # y 坐标加 cm_y
+    # nucleons_group2_rotated[:, 2] += 1  # z 坐标加 1
 
     # 获取 group1 和 group2 中的核子数量
     num_group1 = nucleons_group1_rotated.shape[0]
