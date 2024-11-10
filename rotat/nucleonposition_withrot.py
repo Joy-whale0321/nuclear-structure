@@ -38,7 +38,7 @@ output_dir = "/sphenix/user/jzhang1/nuclear-structure/output/method2/NeEQMD/"
 os.system(f"mkdir -p {output_dir}")
 # output_dir = "/mnt/e/git-repo/nuclear-structure/rotat/"
 # root_filename = f"{output_dir}{Nuclear_system}_EQMD{EQMD_struct1}{EQMD_struct2}_run{runnum}.root"
-root_filename = f"{output_dir}{Nuclear_system}_EQMD_run{runnum}.root"
+root_filename = f"{output_dir}{Nuclear_system}_EQMD_0fm_run{runnum}.root"
 print(f"Creating ROOT file: {root_filename}")
 
 root_file = ROOT.TFile(root_filename, "RECREATE")
