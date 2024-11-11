@@ -116,7 +116,7 @@ for events_i in range(nevents):
     nucleons_group1_rotated = np.dot(nucleons_group1, R1_np.T)
     nucleons_group2_rotated = np.dot(nucleons_group2, R2_np.T)
     # 生成一个随机角度 theta
-    impact_para = 1.5
+    impact_para = 3.0
     cm_theta = random.uniform(0, 2 * math.pi)
     cm_x = math.cos(cm_theta) * math.sqrt(impact_para)
     cm_y = math.sin(cm_theta) * math.sqrt(impact_para)
@@ -178,6 +178,8 @@ for events_i in range(nevents):
     
     # 调用calculate_Qn函数
     M_event = len(participant_phi)
+    if M_event == 0:
+        continue
     M_array[0] = M_event
 
     two_cumulant_event = calepsilon.calculate_two_particle_cumulant(participant_phi, 2)
